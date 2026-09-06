@@ -1,4 +1,6 @@
-## Flask 範例
+## 海龜湯後端
+
+## DB 設定
 
 啟動前請在 `.env` 設定 PostgreSQL 連線資訊，使用其中一種格式：
 
@@ -15,6 +17,9 @@ DB_NAME=turtlesoup
 DB_USER=user
 DB_PASSWORD=password
 ```
+
+
+## 開始
 
 安裝依賴並啟動開發伺服器：
 
@@ -39,4 +44,12 @@ Invoke-RestMethod `
 	"message": "Hello Flask",
 	"status": "created"
 }
+```
+
+## 啟動生產環境
+
+運行以下命令執行生產伺服器
+
+``` bash
+uv run gunicorn src.app:app -w 1 -b 0.0.0.0:8080
 ```
