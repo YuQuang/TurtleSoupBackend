@@ -56,3 +56,11 @@ class MessageService:
         ))
 
         return response
+
+    def get_messages(
+            self,
+            conversation_id: UUID | None
+        ) -> list[Message]:
+        if conversation_id is None:
+            raise ValueError("conversation_id must be provided.")
+        return self.message_repository.get_by_conversation_id(conversation_id)

@@ -14,6 +14,12 @@ def register_turtlesoup_routes(
         view_func=message_controller.post_message,
         methods=["POST"]
     )
+
+    turtlesoup_api.add_url_rule(
+        "/api/messages",
+        view_func=message_controller.get_messages,
+        methods=["GET"]
+    )
     
     turtlesoup_api.add_url_rule(
         "/api/stories",

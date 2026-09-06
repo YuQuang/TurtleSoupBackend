@@ -44,3 +44,25 @@ class MessageController:
             message=result,
             status="created"
         ), 201
+
+    def get_messages(self):
+        """
+        Retrieve messages for a specific conversation.
+
+        Args:
+            conversation_id: ID of the conversation for which to retrieve messages.
+
+        Returns:
+            200: List of messages for the specified conversation.
+            404: Conversation not found.
+        """
+
+        payload = request.get_json(silent=True) or {}
+
+        conversation_id = payload.get("conversation_id")
+        
+        messages = self.service.get_messages(
+            UUID(conversation_id) if conversation_id else None
+        )
+
+        return jsonify(messages), 200
