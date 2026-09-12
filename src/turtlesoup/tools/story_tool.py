@@ -18,8 +18,18 @@ def create_story_tools(story_service: StoryService):
         If no search criteria are provided, return published stories.
         """
         return story_service.get_story(
-            story_id=UUID(story_id) if story_id else None, # type: ignore
-            title=title, # type: ignore
+            story_id=UUID(story_id) if story_id else None,
+            title=title,
         )
 
-    return [get_story]
+    @tool
+    def get_story_titles():
+        """
+        Retrieve all story titles & story ID.
+
+        Returns:
+            A list of all story titles & story ID.
+        """
+        return story_service.get_title_and_story_id()
+
+    return [get_story, get_story_titles]

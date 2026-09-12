@@ -23,16 +23,16 @@ class MessageService:
     def create_message(
         self,
         user_id: UUID | None,
-        message: str | None,
+        content: str | None,
         conversation_id: UUID | None
-    ) -> str:
-        if user_id is None or message is None or conversation_id is None:
-            raise ValueError("User ID, message, and conversation_id must be provided.")
+    ) -> list[Message]:
+        if user_id is None or content is None or conversation_id is None:
+            raise ValueError("User ID, content, and conversation_id must be provided.")
         
         result = self.agent.invoke(
             {
                 "messages": [
-                    {"role": "user", "content": message}
+                    {"role": "user", "content": content}
                 ]
             },
             config = {
@@ -45,17 +45,15 @@ class MessageService:
         response = result["messages"][-1].content
 
         logger.info("response: %s", response)
-        self.message_repository.create(Message(
+        return [self.message_repository.create(Message(
             id=None,
             user_id=user_id,
-            content=message,
+            content=content,
             conversation_id=conversation_id,
             response=response[0]["text"] if response else None,
             error=None,
             created_at=None
-        ))
-
-        return response
+        ))]
 
     def get_messages(
             self,

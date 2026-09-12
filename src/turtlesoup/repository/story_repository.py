@@ -25,7 +25,7 @@ class StoryRepository:
 		query = """
 			INSERT INTO stories (title, mystery, solution, hint, is_published)
 			VALUES (%s, %s, %s, %s, %s)
-			RETURNING id, conversation_id, mystery, solution, hint, is_published,
+			RETURNING id, title, mystery, solution, hint, is_published,
 					  created_at, updated_at
 		"""
 		with self._pool.connection() as connection:
@@ -64,7 +64,7 @@ class StoryRepository:
 				rows = cursor.fetchall()
 				return [self._to_story(row) for row in rows] # type: ignore
 
-	def list_published(self, *, limit: int = 20, offset: int = 0) -> list[Story]:
+	def get_stories(self, *, limit: int = 20, offset: int = 0) -> list[Story]:
 		if limit < 1 or limit > 100:
 			logger.warning("Invalid story list limit: %s", limit)
 			raise ValueError("limit must be between 1 and 100")
@@ -76,7 +76,6 @@ class StoryRepository:
 			SELECT id, title, mystery, solution, hint, is_published,
 				   created_at, updated_at
 			FROM stories
-			WHERE is_published = TRUE
 			ORDER BY created_at DESC
 			LIMIT %s OFFSET %s
 		"""
@@ -84,6 +83,18 @@ class StoryRepository:
 			with connection.cursor(row_factory=dict_row) as cursor:
 				cursor.execute(query, (limit, offset))
 				return [self._to_story(row) for row in cursor.fetchall()] # type: ignore
+
+	def get_title_and_story_id(self) -> list[dict[str,str]]:
+		logger.debug("Fetching all story titles")
+		query = """
+			SELECT title, id
+			FROM stories
+		"""
+		with self._pool.connection() as connection:
+			with connection.cursor(row_factory=dict_row) as cursor:
+				cursor.execute(query)
+				rows = cursor.fetchall()
+				return [row for row in rows]
 
 	def update(
 		self,

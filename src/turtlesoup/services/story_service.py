@@ -16,6 +16,7 @@ class StoryService:
         ):
         self.story_repository = story_repository
 
+
     def get_story(
         self,
         story_id: UUID | None,
@@ -27,7 +28,7 @@ class StoryService:
         The search priority is:
         1. Search by story ID if provided.
         2. Search by title if provided.
-        3. Return all published stories when no criteria are provided.
+        3. Return all stories when no criteria are provided.
 
         Args:
             story_id: UUID of the story to retrieve.
@@ -43,7 +44,22 @@ class StoryService:
         if story_id: return self.story_repository.get_by_id(story_id)
         if title: return self.story_repository.get_by_title(title)
 
-        return self.story_repository.list_published()
+        return self.story_repository.get_stories()
+
+
+    def get_title_and_story_id(
+            self,
+        ) -> list[dict[str,str]] | None:
+            """
+            Retrieve all story title & story ID
+    
+            Returns:
+                All story title & story ID.
+            """
+            logger.info("Fetching all story title")
+
+            return self.story_repository.get_title_and_story_id()
+
 
     def create_story(self, title: str, mystery: str, solution: str, hint: str, is_published: bool = False) -> Story | None:
         """
@@ -71,3 +87,34 @@ class StoryService:
             updated_at=None
         )
         return self.story_repository.create(story)
+
+
+    def update_story(self, id: UUID, title: str, mystery: str, solution: str, hint: str, is_published: bool = False) -> Story | None:
+        """
+        Update an exist story.
+
+        Args:
+            id: Story ID.
+            title: Title of the story.
+            mystery: Mystery description of the story.
+            solution: Solution to the mystery.
+            hint: Hint provided to help solve the mystery.
+            is_published: Flag indicating whether the story should be published.
+
+        Returns:
+            Updated Story, or None if update fails.
+        """
+        logger.info("Updating story: id=%s", id)
+        return self.story_repository.update(
+            id,
+            story=Story(
+                id=None,
+                title=title,
+                mystery=mystery,
+                solution=solution,
+                hint=hint,
+                is_published=is_published,
+                created_at=None,
+                updated_at=None
+            )
+        )

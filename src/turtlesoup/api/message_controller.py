@@ -31,12 +31,12 @@ class MessageController:
         payload = request.get_json(silent=True) or {}
 
         user_id = payload.get("user_id")
-        message = payload.get("message")
+        content = payload.get("content")
         conversation_id = payload.get("conversation_id")
 
         result = self.service.create_message(
             UUID(user_id) if user_id else None,
-            message,
+            content,
             UUID(conversation_id) if conversation_id else None
         )
 
@@ -56,13 +56,16 @@ class MessageController:
             200: List of messages for the specified conversation.
             404: Conversation not found.
         """
+        conversation_id = request.args.get("conversation_id")
 
-        payload = request.get_json(silent=True) or {}
-
-        conversation_id = payload.get("conversation_id")
+        if not conversation_id:
+            return jsonify({"error": "conversation_id is required"}), 400
         
-        messages = self.service.get_messages(
+        result = self.service.get_messages(
             UUID(conversation_id) if conversation_id else None
         )
 
-        return jsonify(messages), 200
+        return jsonify(
+            message=result,
+            status="created"
+        ), 201
