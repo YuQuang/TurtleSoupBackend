@@ -27,6 +27,7 @@ def create_app() -> Flask:
     CORS(
         app,
         origins=[
+            "http://localhost:80",
             "http://localhost:5173",
             "https://turtlesoupfrontend.onrender.com",
         ],
