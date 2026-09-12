@@ -17,6 +17,12 @@ def create_app() -> Flask:
     app = Flask(__name__)
 
     app.secret_key = os.getenv("FLASK_SECRET_KEY")
+    app.config.update(
+        SECRET_KEY=os.environ["FLASK_SECRET_KEY"],
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
+    )
 
     CORS(
         app,

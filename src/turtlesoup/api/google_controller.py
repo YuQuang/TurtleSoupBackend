@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
@@ -9,6 +10,7 @@ from turtlesoup.logging import get_logger
 from turtlesoup.services.auth_service import AuthService
 from turtlesoup.services.google_service import GoogleService
 from turtlesoup.services.user_service import UserService
+from turtlesoup.api.google_oauth_store import OAUTH_SESSION_TTL, OAuthSession
 
 
 load_dotenv()
@@ -32,7 +34,7 @@ class GoogleController:
         self.user_service = user_service
         self.auth_service = auth_service
         self.jwt = ""
-        
+        self.oauth_sessions = {}
 
 
     def _create_flow(self):
@@ -58,21 +60,23 @@ class GoogleController:
             include_granted_scopes="true",
         )
 
-        session["google_oauth_state"] = state
-        session["google_code_verifier"] = flow.code_verifier
+        self.oauth_sessions[state] = OAuthSession(
+            code_verifier=flow.code_verifier,
+            expires_at=time.time() + OAUTH_SESSION_TTL,
+        )
 
         return redirect(authorization_url)
 
 
     def callback(self):
         returned_state = request.args.get("state")
-        session_state = session.get("google_oauth_state")
-        code_verifier = session.get("google_code_verifier")
 
         if not returned_state: return "Missing OAuth state", 400
-        if not session_state: return "OAuth session expired", 400
-        if returned_state != session_state: return "Invalid OAuth state", 400
+        oauth_session = self.oauth_sessions.pop(returned_state, None)
+        if oauth_session.expires_at < time.time(): return "OAuth session expired", 400
+        code_verifier = oauth_session.code_verifier
         if not code_verifier: return "OAuth code verifier not found", 400
+        session_state = returned_state
 
         flow = self._create_flow()
         flow.state = session_state
@@ -150,7 +154,7 @@ class GoogleController:
             self.jwt,
             httponly=True,
             secure=True,
-            samesite="None",
+            samesite="None; Secure; HttpOnly",
             max_age=60 * 60 * 3,  # 3 hours
         )
 
