@@ -22,7 +22,7 @@ def create_app() -> Flask:
         app,
         origins=[
             "http://localhost:5173",
-            "https://app.example.com",
+            "https://turtlesoupfrontend.onrender.com",
         ],
         supports_credentials=True,
     )
