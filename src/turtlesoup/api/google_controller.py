@@ -150,7 +150,7 @@ class GoogleController:
             self.jwt,
             httponly=True,
             secure=True,
-            samesite="Lax",
+            samesite="None",
             max_age=60 * 60 * 3,  # 3 hours
         )
 
