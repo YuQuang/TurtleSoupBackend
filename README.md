@@ -4,19 +4,23 @@
 
 啟動前請在 `.env` 設定 PostgreSQL 連線資訊，使用其中一種格式：
 
-```dotenv
+``` dotenv
 DATABASE_URL=postgresql://user:password@localhost:5432/turtlesoup
 ```
 
 或：
 
-```dotenv
+``` dotenv
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=turtlesoup
 DB_USER=user
 DB_PASSWORD=password
 ```
+
+## 設定環境變數
+
+參考 `.env.example` 設定，複製一份名稱修改為 `.env`
 
 
 ## 開始
